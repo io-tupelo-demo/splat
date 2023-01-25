@@ -15,7 +15,6 @@
                     :b [{:dd 4}]
                     :c {:ee 0}
                     }
-        ; expected
         intc-spy   {:leave (fn [stack node]
                              (when (= 2 (:data node))
                                (splat/stack-spy stack node)))}
