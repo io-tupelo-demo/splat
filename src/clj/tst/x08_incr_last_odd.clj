@@ -44,8 +44,11 @@
             ; stack =>
             [{:idx 4 :type :list/entry :val {:data 9 :type :prim}}
              {:type :coll/list}])))
-      (let [intc   {:leave (fn [stack node]
-                             ; either of these stack-pat-* values will work
+
+      ; Note we use the `:enter` interceptor function here.  For primitive value transformation,
+      ; either :enter or :leave will work.  Of course, any changes to collection values using the
+      ; `:enter` part of the interceptor will affect future recursions.
+      (let [intc   {:enter (fn [stack node]
                              (let [stack-pat [{:type :list/entry :idx idx-max}
                                               {:type :coll/list}]
                                    result    (if (submatch? stack-pat stack)
