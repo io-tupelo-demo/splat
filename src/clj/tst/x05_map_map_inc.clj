@@ -6,7 +6,6 @@
     [tupelo.splat :as splat]
     ))
 
-
 ; Increment all values in map of maps
 (verify
   (let [data            {:a {:aa 1}

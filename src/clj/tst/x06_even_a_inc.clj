@@ -15,7 +15,7 @@
     (let [intc-spy {:leave (fn [stack node]
                              (when (= 4 (:data node))
                                (splat/stack-spy stack node)))}]
-      (when false
+      (when false ; uncomment to print result
         (splat/splatter-walk-noop intc-spy data)
         (comment
           ; node =>

@@ -51,21 +51,22 @@
                                       :key  {:data :ee :type :prim}
                                       :val  {:data 0 :type :prim}}}}}}})
 
-    ; (splat/splatter-walk-noop intc-spy data)
-    (comment ; result
-      ; node =>
-      {:branch :map/val :data 2 :type :prim}
-      ; stack =>
-      [{:key  {:data :bb :type :prim}
-        :type :map/entry
-        :val  {:data 2 :type :prim}}
-       {:branch :list/val :type :coll/map}
-       {:idx 0 :type :list/entry :val {:type :coll/map}}
-       {:branch :map/val :type :coll/list}
-       {:key  {:data :a :type :prim}
-        :type :map/entry
-        :val  {:type :coll/list}}
-       {:type :coll/map}])
+    (when false ; uncomment to print result
+      (splat/splatter-walk-noop intc-spy data)
+      (comment ; result
+        ; node =>
+        {:branch :map/val :data 2 :type :prim}
+        ; stack =>
+        [{:key  {:data :bb :type :prim}
+          :type :map/entry
+          :val  {:data 2 :type :prim}}
+         {:branch :list/val :type :coll/map}
+         {:idx 0 :type :list/entry :val {:type :coll/map}}
+         {:branch :map/val :type :coll/list}
+         {:key  {:data :a :type :prim}
+          :type :map/entry
+          :val  {:type :coll/list}}
+         {:type :coll/map}]))
 
     (let [intc {:leave (fn [stack node]
                          (let [data        (:data node)
