@@ -138,7 +138,7 @@
          :c {:ee 0}}))
     (let [intc {:leave (fn [stack node]
                          (let [data        (:data node)
-                               stack-pat-a [{:type :map/entry}
+                               stack-pat-a [{:type :*}
                                             {:type :coll/map}
                                             :*
                                             {:type :coll/list}
