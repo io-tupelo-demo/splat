@@ -1,15 +1,11 @@
 (ns tst.x01-map-list-map-even-inc
-  (:use tupelo.core
+  (:use demo.core tupelo.core
         tupelo.test)
   (:require
     [tupelo.splat :as splat]
     ))
 
-(defn safe-even? [arg] (and (int? arg) (even? arg)))
-(defn safe-odd? [arg] (and (int? arg) (odd? arg)))
-
 (verify
-  (is true)
   (let [data       {:a [{:aa 1 :bb 2}
                         {:cc 3}]
                     :b [{:dd 4}]

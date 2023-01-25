@@ -4,6 +4,10 @@
     [schema.core :as s])
   (:gen-class))
 
+(defn safe-even? [arg] (and (int? arg) (even? arg)))
+(defn safe-odd? [arg] (and (int? arg) (odd? arg)))
+(defn safe-inc [arg] (and (number? arg) (inc arg)))
+
 (s/defn add2 :- s/Num
   "An example to demonstrate Plumatic Schema."
   [x :- s/Num

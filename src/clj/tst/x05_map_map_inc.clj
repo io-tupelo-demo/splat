@@ -1,21 +1,11 @@
 (ns tst.x05-map-map-inc
-  (:use tupelo.core
+  (:use demo.core tupelo.core
         tupelo.test)
   (:require
     [clojure.walk :as walk]
     [tupelo.splat :as splat]
     ))
 
-(defn safe-even? [arg] (and (int? arg) (even? arg)))
-(defn safe-odd? [arg] (and (int? arg) (odd? arg)))
-(defn safe-inc [arg] (and (number? arg) (inc arg)))
-
-(verify
-  (is (safe-even? 2))
-  (isnt (safe-even? 3))
-  (isnt (safe-even? nil))
-  (isnt (safe-even? :c))
-  )
 
 ; Increment all values in map of maps
 (verify
