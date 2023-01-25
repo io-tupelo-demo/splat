@@ -1,9 +1,12 @@
-(ns tst.demo.map-list-map-even-inc
+(ns tst.x01-map-list-map-even-inc
   (:use tupelo.core
         tupelo.test)
   (:require
     [tupelo.splat :as splat]
     ))
+
+(defn safe-even? [arg] (and (int? arg) (even? arg)))
+(defn safe-odd? [arg] (and (int? arg) (odd? arg)))
 
 (verify
   (is true)
@@ -78,7 +81,7 @@
                                             {:type :map/entry}
                                             {:type :coll/map}]
                                result      (cond-it-> node
-                                             (and (int? data) (even? data)
+                                             (and  (safe-even? data)
                                                (submatch? stack-pat-6 stack))
                                              (update-in node [:data] inc))]
                            result))}]
@@ -95,7 +98,7 @@
                                             {:type :coll/list}
                                             ]
                                result      (cond-it-> node
-                                             (and (int? data) (even? data)
+                                             (and  (safe-even? data)
                                                (submatch? stack-pat-3 stack))
                                              (update-in node [:data] inc))]
                            result))}]
@@ -108,7 +111,7 @@
                          (let [data        (:data node)
                                stack-pat-3 [{:type :map/entry}]
                                result      (cond-it-> node
-                                             (and (int? data) (even? data)
+                                             (and  (safe-even? data)
                                                (submatch? stack-pat-3 stack))
                                              (update-in node [:data] inc))]
                            result))}]
@@ -127,7 +130,7 @@
                                             {:key {:data :a}}
                                             {:type :coll/map}]
                                result      (cond-it-> node
-                                             (and (int? data) (even? data)
+                                             (and  (safe-even? data)
                                                (submatch? stack-pat-a stack))
                                              (update-in node [:data] inc))]
                            result))}]
@@ -144,7 +147,7 @@
                                             {:type :coll/list}
                                             {:key {:data :a}}]
                                result      (cond-it-> node
-                                             (and (int? data) (even? data)
+                                             (and  (safe-even? data)
                                                (wild-submatch? stack-pat-a stack))
                                              (update-in node [:data] inc))]
                            result))}]
