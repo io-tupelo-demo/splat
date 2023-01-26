@@ -36,10 +36,9 @@
         expected [2 1 2 6 7 4 1 2]
         result   (t/with-cum-vector ; easy way to accumulate results
                    (->> data
-                     (walk/prewalk (fn [arg]
-                                     (with-result arg
-                                       (when (number? arg)
-                                         (t/cum-vector-append! arg)))))))]
+                     (walk/postwalk (fn [arg]
+                                      (when (number? arg)
+                                        (t/cum-vector-append! arg))))))]
     (is= expected result)))
 
 ; Map keys can be strings, no problem.
