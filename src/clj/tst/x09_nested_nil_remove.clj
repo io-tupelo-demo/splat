@@ -32,18 +32,20 @@
            :type :coll/list}}},
        :type :coll/map}
       )
-    ; Solution is super-easy. Just return `nil` for any node you wish to delete
+    ; Solution is super-easy. Just return `nil` for any list-entry you wish to delete
     (let [intc   {:leave (fn [stack node]
-                           (newline)
-                           (spyq :-----------------------------------------------------------------------------)
-                           (let-spy-pretty
-                             [stack-pat [{:type :list/entry}]
-                              result    (if (and (submatch? stack-pat stack)
-                                              (nil? (:data node)))
-                                          nil
-                                          node)]
+                           (let [stack-pat [{:type :list/entry}]
+                                 result    (if (and
+                                                 (submatch? stack-pat stack)
+                                                 (= :prim (grab :type node))
+                                                 (nil? (grab :data node)))
+                                             nil
+                                             node)]
                              result))}
           result (splat/splatter-walk intc data)]
-      (is= (spyx-pretty result) expected))
-    ))
+      (is= result expected)
+
+      ; Only remove `nil` values that are a list-entry
+      (is= {:a nil :b [1 2 #{nil 4 5}]}
+        (splat/splatter-walk intc {:a nil :b [1 2 nil #{nil 4 5}]})))))
 
