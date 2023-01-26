@@ -56,6 +56,8 @@
         auto-vacuum (fn [arg]
                       (->> arg
                         (walk/postwalk (fn [item]
-                                         (cond-it-> item
-                                           (and (map-entry? item) (= {} (val item))) {})))))]
+                                         (if (and (map-entry? item)
+                                             (= {} (val item)))
+                                           {}
+                                           item)))))]
     (is= {} (auto-vacuum data))))
