@@ -1,4 +1,5 @@
-(ns tst.x11-inc-odds-idx
+(ns  ^:test-refresh/focus
+  tst.x11-inc-odds-idx
   (:use demo.core
         tupelo.core
         tupelo.test)
@@ -41,7 +42,77 @@
                                         (t/cum-vector-append! arg))))))]
     (is= expected result)))
 
-; Map keys can be strings, no problem.
+; Map keys can be strings no problem.
 (verify
   (is= 10
     (get-in {"a" {"b" 10}} ["a" "b"])))
+
+; Increment all even numbers but only at 2nd level deep
+(verify
+  (let [data     [{:a  1
+                   :aa 2
+                   :b  {:c 3
+                        :d 4}
+                   :e  {:f 6
+                        :g 7
+                        :h {:i 9
+                            :j 10}}}]
+        expected [{:a  1
+                   :aa 2
+                   :b  {:c 3
+                        :d 5}
+                   :e  {:f 7
+                        :g 7
+                        :h {:i 9
+                            :j 10}}}]]
+
+    ; Use the `splat/stack-spy` function to display the frame (node+stack) when
+    ; we encounter a valid target like `4`
+    (let [intc-spy {:leave (fn [stack node]
+                             (when (= 4 (:data node))
+                               (splat/stack-spy stack node)))}]
+      (when false ; enable to print result
+        (splat/splatter-walk-noop intc-spy data)
+        (comment
+          ; node =>
+          {:branch :map/val :data 4 :type :prim}
+          ; stack =>
+          [{:key  {:data :d :type :prim}
+            :type :map/entry
+            :val  {:data 4 :type :prim}}
+           {:branch :map/val :type :coll/map}
+           {:key  {:data :b :type :prim}
+            :type :map/entry
+            :val  {:type :coll/map}}
+           {:branch :list/val :type :coll/map}
+           {:idx 0 :type :list/entry :val {:type :coll/map}}
+           {:type :coll/list}])))
+
+    ; We don't really need any data from the stack just the size to indicate
+    ; the desired depth => 6
+    (let [intc   {:leave (fn [stack node]
+                           (if (and
+                                 (= 6 (count stack))
+                                 (safe-even? (:data node)))
+                             (update-in node [:data] inc)
+                             node))}
+          result (splat/splatter-walk intc data)]
+      (is= result expected))
+    ))
+
+; Add value of :b key to :a key if :a key value is even
+(verify
+  (let [data     [{:a 1 :b 5}
+                  {:a 2 :b 7}
+                  {:a 3 :b 11}
+                  {:a 4 :b 13}]
+        expected [{:a 1 :b 5}
+                  {:a 9 :b 7}
+                  {:a 3 :b 11}
+                  {:a 17 :b 13}]]
+    ; Can just use `forv` for this
+    (let [result (forv [m data]
+                   (with-map-vals m [a b]
+                     (cond-it-> m
+                       (even? a) (update-in m [:a] #(+ % b)))))]
+      (is= expected result))))
