@@ -1,4 +1,4 @@
-(ns  ^:test-refresh/focus
+(ns ^:test-refresh/focus
   tst.x11-inc-odds-idx
   (:use demo.core
         tupelo.core
@@ -116,3 +116,62 @@
                      (cond-it-> m
                        (even? a) (update-in m [:a] #(+ % b)))))]
       (is= expected result))))
+
+; Apply namespace labels depending on the type of record
+(verify
+  (let [data     {:cust {:name "Joe"}
+                  :city {:name "Springfield"}
+                  }
+        expected {:cust {:cust/name "Joe"}
+                  :city {:city/name "Springfield"}
+                  }]
+
+    ; Use the `splat/stack-spy` function to display the frame (node+stack) when
+    ; we encounter a valid target like `4`
+    (let [intc-spy {:leave (fn [stack node]
+                             (when (= :name (:data node))
+                               (splat/stack-spy stack node)))}]
+      (when false ; enable to print result
+        (splat/splatter-walk-noop intc-spy data)
+        (comment
+          ; node =>
+          {:branch :map/key :data :name :type :prim}
+          ; stack =>
+          [{:key  {:data :name :type :prim}
+            :type :map/entry
+            :val  {:data "Sprintfield" :type :prim}}
+           {:branch :map/val :type :coll/map}
+           {:key  {:data :city :type :prim}
+            :type :map/entry
+            :val  {:type :coll/map}}
+           {:type :coll/map}]
+          )))
+
+    ; Add appropriate namespace prefix to `:name` keys
+    (let [stack-tmpl-city [{:key  {:data :name :type :prim}
+                            :type :map/entry}
+                           {:type :coll/map}
+                           {:key {:data :city :type :prim}}]
+
+          stack-tmpl-cust [{:key  {:data :name :type :prim}
+                            :type :map/entry}
+                           {:type :coll/map}
+                           {:key {:data :cust :type :prim}}]
+
+          intc            {:leave (fn [stack node]
+                                    ; Like `clojure.core/cont->`, `tupelo.core/cont-it->` will return the `node`
+                                    ; value unchanged if none of the conditionals match.
+                                    (cond-it-> node
+
+                                      (and ; `it` is the threaded value of `node` in these expressions
+                                        (submatch? {:branch :map/key :data :name} it)
+                                        (submatch? stack-tmpl-cust stack))
+                                      (assoc-in it [:data] :cust/name)
+
+                                      (and ; `it` is the threaded value of `node` in these expressions
+                                        (submatch? {:branch :map/key :data :name} it)
+                                        (submatch? stack-tmpl-city stack))
+                                      (assoc-in it [:data] :city/name)))}
+          result          (splat/splatter-walk intc data)]
+      (is= result expected))))
+
