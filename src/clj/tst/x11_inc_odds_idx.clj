@@ -120,11 +120,9 @@
 ; Apply namespace labels depending on the type of record
 (verify
   (let [data     {:cust {:name "Joe"}
-                  :city {:name "Springfield"}
-                  }
+                  :city {:name "Springfield"}}
         expected {:cust {:cust/name "Joe"}
-                  :city {:city/name "Springfield"}
-                  }]
+                  :city {:city/name "Springfield"}}]
 
     ; Use the `splat/stack-spy` function to display the frame (node+stack) when
     ; we encounter a valid target like `4`
