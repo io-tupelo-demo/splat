@@ -1,5 +1,4 @@
-(ns ^:test-refresh/focus
-  tst.x11-inc-odds-idx
+(ns tst.x11-inc-odds-idx
   (:use demo.core
         tupelo.core
         tupelo.test)
@@ -146,18 +145,16 @@
           )))
 
     ; Add appropriate namespace prefix to `:name` keys
-    (let [stack-tmpl-city [{:key  {:data :name :type :prim}
-                            :type :map/entry}
+    (let [stack-tmpl-city [{:type :map/entry :key {:data :name}}
                            {:type :coll/map}
                            {:key {:data :city :type :prim}}]
 
-          stack-tmpl-cust [{:key  {:data :name :type :prim}
-                            :type :map/entry}
+          stack-tmpl-cust [{:type :map/entry :key {:data :name}}
                            {:type :coll/map}
                            {:key {:data :cust :type :prim}}]
 
           intc            {:leave (fn [stack node]
-                                    ; Like `clojure.core/cont->`, `tupelo.core/cont-it->` will return the `node`
+                                    ; Like `clojure.core/cond->`, `tupelo.core/cond-it->` will return the `node`
                                     ; value unchanged if none of the conditionals match.
                                     (cond-it-> node
 
@@ -172,4 +169,5 @@
                                       (assoc-in it [:data] :city/name)))}
           result          (splat/splatter-walk intc data)]
       (is= result expected))))
+
 
