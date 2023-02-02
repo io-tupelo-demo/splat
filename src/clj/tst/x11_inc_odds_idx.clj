@@ -37,8 +37,9 @@
         result   (t/with-cum-vector ; easy way to accumulate results
                    (->> data
                      (walk/postwalk (fn [arg]
-                                      (when (number? arg)
-                                        (t/cum-vector-append! arg))))))]
+                                      (with-result arg ; don't change anything
+                                        (when (number? arg)
+                                          (t/cum-vector-append! arg)))))))]
     (is= expected result)))
 
 ; Map keys can be strings no problem.
