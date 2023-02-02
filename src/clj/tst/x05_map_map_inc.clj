@@ -68,18 +68,34 @@
       ; We can match on both a stack pattern and a node pattern. Just copy the output of
       ; `splatter-walk-noop` and `stack-spy` and delete the parts you don't want or need
       ; to get `stack-pat` and the `if` condition
-      (let [intc   {:leave (fn [stack node]
-                             (let [stack-pat [{:type :map/entry}
-                                              {:type :coll/map :branch :map/val}
-                                              {:type :map/entry}
-                                              {:type :coll/map}]
-                                   result    (if (and (submatch? {:branch :map/val :type :prim} node)
-                                                   (submatch? stack-pat stack))
-                                               (update-in node [:data] inc)
-                                               node)]
-                               result))}
-            result (splat/splatter-walk intc data)]
-        (is= result result-expected))
+      (let [intc-stack   {:leave (fn [stack node]
+                                   (let [stack-pat [{:type :map/entry}
+                                                    {:type :coll/map :branch :map/val}
+                                                    {:type :map/entry}
+                                                    {:type :coll/map}]
+                                         result    (if (and (submatch? {:branch :map/val :type :prim} node)
+                                                         (submatch? stack-pat stack))
+                                                     (update-in node [:data] inc)
+                                                     node)]
+                                     result))}
+            ; we don't really need the stack part since the node can tell us if we are on the
+            ; :map/key or :map/val branch from the map-entry
+            intc-node    {:leave (fn [-stack- node]
+                                   (if (submatch? {:branch :map/val :type :prim} node)
+                                     (update-in node [:data] inc)
+                                     node))}
+            result-stack (splat/splatter-walk intc-stack data)
+            result-node  (splat/splatter-walk intc-node data)]
+        (is= result-stack result-node
+          result-expected)
 
-      )))
-
+        ; Note that, since the splat knows the difference betweens keys and values in a map, we can change
+        ; the keys to integers and the same inteceptor still works.
+        (let [data            {4 {11 1}
+                               5 {22 -1 33 2}}
+              result-expected {4 {11 2}
+                               5 {22 0 33 3}}
+              result-stack    (splat/splatter-walk intc-stack data)
+              result-node     (splat/splatter-walk intc-node data)]
+          (is= result-stack result-node
+            result-expected))))))
