@@ -20,9 +20,9 @@
                                            (number? it) (inc it)))
                           data)
 
+        ; More direct version using (tupelo.core/map-vals <data-map> <tx-fn>)
         result-mapping  (map-vals data
-                          (fn [arg]
-                            (map-vals arg inc)))
+                          #(map-vals % inc))
         ]
     (is= result-expected result-postwalk)
     (is= result-expected result-mapping)
