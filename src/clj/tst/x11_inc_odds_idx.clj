@@ -34,12 +34,15 @@
 (verify
   (let [data     {2 [1 2 [6 7]] :a 4 :c {:a 1 :d [2 nil]}}
         expected [2 1 2 6 7 4 1 2]
+
+        ; Can use prewalk or postwalk & get same result. Import part is to leave node
+        ; unchanged by visitor function.
         result   (t/with-cum-vector ; easy way to accumulate results
-                   (->> data
-                     (walk/postwalk (fn [arg]
-                                      (with-result arg ; don't change anything
-                                        (when (number? arg)
-                                          (t/cum-vector-append! arg)))))))]
+                   (walk/prewalk (fn [arg]
+                                   (with-result arg ; don't change the node
+                                     (when (number? arg)
+                                       (t/cum-vector-append! arg)))) ; save result to cum-vector
+                     data))]
     (is= expected result)))
 
 ; Map keys can be strings no problem.
