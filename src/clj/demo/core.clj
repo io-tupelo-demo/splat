@@ -6,8 +6,6 @@
 
 (defn safe-even? [arg] (and (int? arg) (even? arg)))
 (defn safe-odd? [arg] (and (int? arg) (odd? arg)))
-(defn safe-inc [arg] (cond-it-> arg
-                       (number? it) (inc it)))
 
 (s/defn add2 :- s/Num
   "An example to demonstrate Plumatic Schema."

@@ -1,12 +1,13 @@
 (ns tst.x05-map-map-inc
-  (:use demo.core tupelo.core
+  (:use demo.core
+        tupelo.core
         tupelo.test)
   (:require
     [clojure.walk :as walk]
     [tupelo.splat :as splat]
     ))
 
-; Increment all values in map of maps
+; Increment all numeric values in map of maps
 (verify
   (let [data            {:a {:aa 1}
                          :b {:ba -1 :bb 2}}
@@ -19,9 +20,9 @@
                                            (number? it) (inc it)))
                           data)
 
-        result-mapping (map-vals data
-                         (fn [arg]
-                           (map-vals arg safe-inc)))
+        result-mapping  (map-vals data
+                          (fn [arg]
+                            (map-vals arg inc)))
         ]
     (is= result-expected result-postwalk)
     (is= result-expected result-mapping)

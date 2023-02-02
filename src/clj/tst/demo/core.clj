@@ -15,10 +15,3 @@
   (isnt (safe-odd? :c))
   )
 
-(verify
-  (is= :a (safe-inc :a))
-  (is= 4 (safe-inc 3))
-  (is= nil (safe-inc nil))
-  )
-
-
