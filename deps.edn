@@ -17,12 +17,14 @@
                                        }
                           }
            :test-refresh {:extra-deps {com.jakemccrary/test-refresh {:mvn/version "0.25.0"}}
-                          :main-opts  ["-m" "com.jakemccrary.test-refresh" "--dir" "src"]
-                          }
-
+                          :main-opts  ["-m" "com.jakemccrary.test-refresh"
+                                       "--dir" "src"
+                                       ]
+                          } 
            ; This target finds dependencies with outdated version numbers
            :old          {:deps      {com.github.liquidz/antq {:mvn/version "RELEASE"}}  ; NOT `:extra-deps` !!!
                           :main-opts ["-m" "antq.core"]
                           }
            }
  }
+
