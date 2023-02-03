@@ -174,4 +174,46 @@
           result          (splat/splatter-walk intc data)]
       (is= result expected))))
 
+; Suppose we want to splice a vector into the middle of another
+(verify
+  ; simple example of use
+  (let [mid-vec [3 4 5]]
+    (is= (t/->vector 1 2 (t/<> mid-vec) 6 7)
+      [1 2 3 4 5 6 7]))
+
+  (let [orig    [:top
+                 [:mid
+                  [:low
+                   1
+                   2
+                   :target
+                   6
+                   7]]]
+        ; So we want to replace a single item `:targ` with 3 items (not a vector of 3 items)
+        ; This is similar to `unquote-splice` operator `~@`
+        expected [:top
+                 [:mid
+                  [:low
+                   1
+                   2
+                   3 4 5
+                   6
+                   7]]]
+        ; We don't even need splatter for this, just use `tupelo.core/->vector` and the special
+        ; splicing function `tupelo.core/<>`. Use regular `postwalk` to find/update the desired items.
+        result  (->> orig
+                  (walk/postwalk (fn [arg]
+                                   (cond-it-> arg
+
+                                     ; Replace :target with (<> [3 4 5])
+                                     (= it :target) (t/<> [3 4 5])
+
+                                     ; Wrap the :low vector inside (->vector ...)
+                                     (and (vector? it)
+                                       (= :mid (first it)))
+                                     (let [low-vec (apply t/->vector (second it))
+                                           mid-vec  [:mid low-vec]]
+                                       mid-vec)))))
+        ]
+    (is= result expected)))
 
